@@ -26,7 +26,7 @@ def dfs_sum(color, graph):
 
 
 
-with open(sys.argv[1]) as input_file:
+with open("/Users/naimunsiraj/Documents/aoc_2020/day7/test.txt") as input_file:
     csv_file = csv.reader(input_file)
 
     graph = {}
