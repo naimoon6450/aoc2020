@@ -25,7 +25,7 @@ def empty_seat(row, col, seat_map):
 
     return left and right and up and down and diag_1 and diag_2 and diag_3 and diag_4
 
-def occupied_seat(row, col, seat_map):
+# def occupied_seat(row, col, seat_map):
     left = attempt_row_access(row, col-1, seat_map) in "#"
     right = attempt_row_access(row, col+1, seat_map) in "#"
     up = attempt_row_access(row+1, col, seat_map) in '#'
@@ -117,7 +117,7 @@ def search_out(direction, row, col, seat_map):
 
 
 
-def simulate(seat_map, global_map):
+# def simulate(seat_map, global_map):
     col_len = len(seat_map[0])
     row_len = len(seat_map)
     for i in range(row_len):
