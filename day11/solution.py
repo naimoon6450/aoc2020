@@ -26,21 +26,21 @@ def empty_seat(row, col, seat_map):
     return left and right and up and down and diag_1 and diag_2 and diag_3 and diag_4
 
 # def occupied_seat(row, col, seat_map):
-    left = attempt_row_access(row, col-1, seat_map) in "#"
-    right = attempt_row_access(row, col+1, seat_map) in "#"
-    up = attempt_row_access(row+1, col, seat_map) in '#'
-    down = attempt_row_access(row-1, col, seat_map) in '#'
-    diag_1 = attempt_row_access(row-1, col-1, seat_map) in '#'
-    diag_2 = attempt_row_access(row-1, col+1, seat_map) in '#'
-    diag_3 = attempt_row_access(row+1, col+1, seat_map) in '#'
-    diag_4 = attempt_row_access(row+1, col-1, seat_map) in '#'
-    truth_arr = [left, right, up, down, diag_1, diag_2, diag_3, diag_4]
+    # left = attempt_row_access(row, col-1, seat_map) in "#"
+    # right = attempt_row_access(row, col+1, seat_map) in "#"
+    # up = attempt_row_access(row+1, col, seat_map) in '#'
+    # down = attempt_row_access(row-1, col, seat_map) in '#'
+    # diag_1 = attempt_row_access(row-1, col-1, seat_map) in '#'
+    # diag_2 = attempt_row_access(row-1, col+1, seat_map) in '#'
+    # diag_3 = attempt_row_access(row+1, col+1, seat_map) in '#'
+    # diag_4 = attempt_row_access(row+1, col-1, seat_map) in '#'
+    # truth_arr = [left, right, up, down, diag_1, diag_2, diag_3, diag_4]
 
-    sums = 0
-    for item in truth_arr:
-        if item: sums += 1
+    # sums = 0
+    # for item in truth_arr:
+    #     if item: sums += 1
     
-    return sums
+    # return sums
 
 def occupied_seat_pt2(row, col, seat_map):
     left = search_out('left', row, col-1, seat_map) or False
@@ -118,16 +118,16 @@ def search_out(direction, row, col, seat_map):
 
 
 # def simulate(seat_map, global_map):
-    col_len = len(seat_map[0])
-    row_len = len(seat_map)
-    for i in range(row_len):
-        for j in range(col_len):
-            item = seat_map[i][j]
-            if item == '#':
-                if occupied_seat(i, j, seat_map) >= 5: global_map[i][j] = 'L'
-            elif item == 'L':
-                if empty_seat(i, j, seat_map): global_map[i][j] = '#'
-    return global_map
+    # col_len = len(seat_map[0])
+    # row_len = len(seat_map)
+    # for i in range(row_len):
+    #     for j in range(col_len):
+    #         item = seat_map[i][j]
+    #         if item == '#':
+    #             if occupied_seat(i, j, seat_map) >= 5: global_map[i][j] = 'L'
+    #         elif item == 'L':
+    #             if empty_seat(i, j, seat_map): global_map[i][j] = '#'
+    # return global_map
 
 def simulate_pt2(seat_map, global_map):
     col_len = len(seat_map[0])
