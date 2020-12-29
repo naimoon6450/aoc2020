@@ -4,11 +4,15 @@ import functools
 import copy
 import numpy as np
 
+import time
 
 '''
 Learnings
 - Cant expect a variable outsite a loop to update just bc the dependent variables are updating. So if there's a var dependent on row/col changing, the var itself isn't being updated in the loop so it doesn't change
 - Bad way to identify first L or first #... need to change that 
+- Didn't read the question properly, they wanted to update 
+- Framing question using FSM (https://www.reddit.com/r/adventofcode/comments/kblayc/2020_day_11_analytics_cycles_in_the_seating_system/)
+- 
 '''
 
 
@@ -300,26 +304,15 @@ with open(sys.argv[1]) as input_file:
             return glob2.board
         return helper(glob2)
 
+    # tic = time.time()
     answer = helper(glob)
-    # print('init')
-    # print(np.matrix(static_map.board))
-    # print('first iter')
-    # print(np.matrix(glob.board))
-    # glob2 = simulate_class(glob, Board(copy.deepcopy(glob.board)))
-    # print('sec iter')
-    # print(np.matrix(glob2.board))
-    # glob3 = simulate_class(glob2, Board(copy.deepcopy(glob2.board)))
-    # print('third iter')
-    # print(np.matrix(glob3.board))
-    # glob4 = simulate_class(glob3, Board(copy.deepcopy(glob3.board)))
-    # print('third iter')
-    # print(np.matrix(glob4.board))
-
-
-    occupied = 0
+    # occupied = 0
     for row in answer:
         for col in row:
             if col == '#': occupied += 1
+    # toc = time.time()
+    # time = toc-tic
+    # print("Finished in {0} seconds".format(time))
     print(occupied)
     # test_board = Board(seat_map)
     # print(test_board.calculate_neighbors(1,5,'diag4'))
