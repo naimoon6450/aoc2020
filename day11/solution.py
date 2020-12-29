@@ -4,6 +4,223 @@ import functools
 import copy
 import numpy as np
 
+
+'''
+Learnings
+- Cant expect a variable outsite a loop to update just bc the dependent variables are updating. So if there's a var dependent on row/col changing, the var itself isn't being updated in the loop so it doesn't change
+- Bad way to identify first L or first #... need to change that 
+'''
+
+
+class Board(object):
+    MAX_NEIGHBORS = 5
+
+    def __init__(self, map_board):
+        self.board = map_board
+        self.neighbors = [(0, 1), (0, -1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, 1), (1, -1)]
+        self.row_len = len(map_board)
+        self.col_len = len(map_board[0])
+
+    def return_cell(self, row, col):
+        return self.board[row][col]
+    
+    def update_cell(self, row, col, value):
+        self.board[row][col] = value
+
+    # returns the cell number if it's not invalid
+    def is_valid_cell(self, row, col):
+        try:
+            # -1 can looks at last elem in array, so account for that
+            if row == -1 or col == -1:
+                return ' '
+            return self.board[row][col]
+        except (ValueError, IndexError):
+            return ' '
+    
+    def calculate_empty(self, row, col):
+        '''
+        pitfals here: 
+            forgot to add the neighbor value to the incoming row / col (row + x[0]) vs just (row)
+            need to return evaluated bool vs a number which would be true if there's at least 1 truthy statement
+        '''
+        
+        neighbor_evaluation = [self.is_valid_cell(row + x[0], col + x[1]) in "L. " for x in self.neighbors]        
+        return sum(neighbor_evaluation) == 8
+    
+    def calculate_occupied(self, row, col):
+        neighbor_evaluation = [self.is_valid_cell(row + x[0], col + x[1]) in "#" for x in self.neighbors]
+        sums = sum(neighbor_evaluation)        
+        return sums >= self.MAX_NEIGHBORS
+    
+    def calc_empty(self, row, col):
+        neigh = ['left', 'right', 'up', 'down', 'diag1', 'diag2', 'diag3', 'diag4']
+        evals = [self.calculate_neighbors_empty(row, col, x, 'L') for x in neigh]
+        return sum(evals) == 8
+
+    def calc_neigh(self, row, col):
+        neigh = ['left', 'right', 'up', 'down', 'diag1', 'diag2', 'diag3', 'diag4']
+        evals = [self.calculate_neighbors(row, col, x, '#') for x in neigh]
+        return sum(evals) >= self.MAX_NEIGHBORS
+    
+    def calculate_neighbors(self, row, col, direction, check):
+        # move left until you hit last elem
+        if direction == 'left':
+            col -= 1
+            while col >= 0:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                col -= 1
+            return False
+        elif direction == 'right':
+            col += 1
+            while col < self.col_len:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                col += 1
+            return False
+        elif direction == 'up':
+            row -= 1
+            while row >= 0:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                row -= 1
+            return False
+        elif direction == 'down':
+            row += 1
+            while row < self.row_len:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                row += 1
+            return False
+        elif direction == 'diag1':
+            # goes left and up
+            row -= 1
+            col -= 1
+            dir_bool = col >= 0 and row >= 0
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                row -= 1
+                col -= 1
+                dir_bool = col >= 0 and row >= 0
+            return False
+        elif direction == 'diag2':
+            # goes left and up
+            row -= 1
+            col += 1
+            dir_bool = col < self.col_len and row >= 0
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                row -= 1
+                col += 1
+                dir_bool = col < self.col_len and row >= 0
+            return False
+        elif direction == 'diag3':
+            # goes left and up
+            row += 1
+            col += 1
+            dir_bool = col < self.col_len and row < self.row_len
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                row += 1
+                col += 1
+                dir_bool = col < self.col_len and row < self.row_len
+            return False
+        elif direction == 'diag4':
+            # goes left and up
+            row += 1
+            col -= 1
+            dir_bool = col >= 0 and row < self.row_len
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in 'L': return False
+                row += 1
+                col -= 1
+                dir_bool = col >= 0 and row < self.row_len
+            return False
+    
+    def calculate_neighbors_empty(self, row, col, direction, check):
+        # move left until you hit last elem
+        if direction == 'left':
+            col -= 1
+            while col >= 0:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                col -= 1
+            return True
+        elif direction == 'right':
+            col += 1
+            while col < self.col_len:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                col += 1
+            return True
+        elif direction == 'up':
+            row -= 1
+            while row >= 0:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                row -= 1
+            return True
+        elif direction == 'down':
+            row += 1
+            while row < self.row_len:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                row += 1
+            return True
+        elif direction == 'diag1':
+            # goes left and up
+            row -= 1
+            col -= 1
+            dir_bool = col >= 0 and row >= 0
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                row -= 1
+                col -= 1
+                dir_bool = col >= 0 and row >= 0
+            return True
+        elif direction == 'diag2':
+            # goes left and up
+            row -= 1
+            col += 1
+            dir_bool = col < self.col_len and row >= 0
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                row -= 1
+                col += 1
+                dir_bool = col < self.col_len and row >= 0
+            return True
+        elif direction == 'diag3':
+            # goes left and up
+            row += 1
+            col += 1
+            dir_bool = col < self.col_len and row < self.row_len
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                row += 1
+                col += 1
+                dir_bool = col < self.col_len and row < self.row_len
+            return True
+        elif direction == 'diag4':
+            # goes left and up
+            row += 1
+            col -= 1
+            dir_bool = col >= 0 and row < self.row_len
+            while dir_bool:
+                if self.board[row][col] in check: return True
+                if self.board[row][col] in '#': return False
+                row += 1
+                col -= 1
+                dir_bool = col >= 0 and row < self.row_len
+            return True
+                
+
 def attempt_row_access(row, col, seat_map):
     try:
         if row == -1 or col == -1:
@@ -25,123 +242,45 @@ def empty_seat(row, col, seat_map):
 
     return left and right and up and down and diag_1 and diag_2 and diag_3 and diag_4
 
-# def occupied_seat(row, col, seat_map):
-    # left = attempt_row_access(row, col-1, seat_map) in "#"
-    # right = attempt_row_access(row, col+1, seat_map) in "#"
-    # up = attempt_row_access(row+1, col, seat_map) in '#'
-    # down = attempt_row_access(row-1, col, seat_map) in '#'
-    # diag_1 = attempt_row_access(row-1, col-1, seat_map) in '#'
-    # diag_2 = attempt_row_access(row-1, col+1, seat_map) in '#'
-    # diag_3 = attempt_row_access(row+1, col+1, seat_map) in '#'
-    # diag_4 = attempt_row_access(row+1, col-1, seat_map) in '#'
-    # truth_arr = [left, right, up, down, diag_1, diag_2, diag_3, diag_4]
-
-    # sums = 0
-    # for item in truth_arr:
-    #     if item: sums += 1
-    
-    # return sums
-
-def occupied_seat_pt2(row, col, seat_map):
-    left = search_out('left', row, col-1, seat_map) or False
-    right = search_out('right', row, col+1, seat_map) or False
-    up = search_out('up', row+1, col, seat_map) or False
-    down = search_out('down',row-1, col, seat_map) or False
-    diag_1 = search_out('diag1', row-1, col-1, seat_map) or False
-    diag_2 = search_out('diag2',row-1, col+1, seat_map) or False
-    diag_3 = search_out('diag3',row+1, col+1, seat_map) or False
-    diag_4 = search_out('diag4',row+1, col-1, seat_map) or False
+def occupied_seat(row, col, seat_map):
+    left = attempt_row_access(row, col-1, seat_map) in "#"
+    right = attempt_row_access(row, col+1, seat_map) in "#"
+    up = attempt_row_access(row+1, col, seat_map) in '#'
+    down = attempt_row_access(row-1, col, seat_map) in '#'
+    diag_1 = attempt_row_access(row-1, col-1, seat_map) in '#'
+    diag_2 = attempt_row_access(row-1, col+1, seat_map) in '#'
+    diag_3 = attempt_row_access(row+1, col+1, seat_map) in '#'
+    diag_4 = attempt_row_access(row+1, col-1, seat_map) in '#'
     truth_arr = [left, right, up, down, diag_1, diag_2, diag_3, diag_4]
 
     sums = 0
     for item in truth_arr:
         if item: sums += 1
-    # print(sums)
+    
     return sums
 
-def search_out(direction, row, col, seat_map):
-    COL_LEN = len(seat_map[0])
-    ROW_LEN = len(seat_map)
-    if direction == 'right':
-        while col < COL_LEN:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            col += 1
-    elif direction == 'left':
-        while col >= 0:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            col -= 1
-    elif direction == 'down':
-        while row < ROW_LEN:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            row += 1
-    elif direction == 'up':
-        while row >= 0:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            row -= 1
-    elif direction == 'diag1': 
-        while row >= 0 and col >= 0:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            row -= 1
-            col -= 1
-    elif direction == 'diag2':
-        while row >= 0 and col < COL_LEN:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            row -= 1
-            col += 1
-    elif direction == 'diag3':
-        while row < ROW_LEN and col < COL_LEN:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            row += 1
-            col += 1
-    elif direction == 'diag4':
-        while row < ROW_LEN and col >= 0:
-            val = attempt_row_access(row, col, seat_map)
-            if val == '#': 
-                return True
-            row += 1
-            col -= 1
-
-
-
-# def simulate(seat_map, global_map):
-    # col_len = len(seat_map[0])
-    # row_len = len(seat_map)
-    # for i in range(row_len):
-    #     for j in range(col_len):
-    #         item = seat_map[i][j]
-    #         if item == '#':
-    #             if occupied_seat(i, j, seat_map) >= 5: global_map[i][j] = 'L'
-    #         elif item == 'L':
-    #             if empty_seat(i, j, seat_map): global_map[i][j] = '#'
-    # return global_map
-
-def simulate_pt2(seat_map, global_map):
+def simulate(seat_map, global_map):
     col_len = len(seat_map[0])
     row_len = len(seat_map)
     for i in range(row_len):
         for j in range(col_len):
             item = seat_map[i][j]
-            # print(i, j, 'curr item', item)
             if item == '#':
-                if occupied_seat_pt2(i, j, seat_map) >= 5: global_map[i][j] = 'L'
+                if occupied_seat(i, j, seat_map) >= 5: global_map[i][j] = 'L'
             elif item == 'L':
                 if empty_seat(i, j, seat_map): global_map[i][j] = '#'
-            # print('completed', i, j)
     return global_map
+
+
+def simulate_class(static_map, class_map):
+    for i in range(static_map.row_len):
+        for j in range(static_map.col_len):
+            item = static_map.return_cell(i, j)
+            # if item == '#' and static_map.calculate_occupied(i, j): class_map.update_cell(i, j, 'L')
+            if item == '#' and static_map.calc_neigh(i, j): class_map.update_cell(i, j, 'L')
+            elif item == 'L' and static_map.calc_empty(i, j): class_map.update_cell(i, j, '#')
+    
+    return class_map
 
 with open(sys.argv[1]) as input_file:
 # with open("/Users/naimunsiraj/Documents/aoc_2020/day11/test_inp.txt") as input_file:
@@ -150,19 +289,37 @@ with open(sys.argv[1]) as input_file:
     for row in csv_reader:
         seat_map.append(list(row[0]))
 
-
+    static_map = Board(seat_map)
     global_map = copy.deepcopy(seat_map)
-    glob = simulate_pt2(seat_map, global_map)
+    class_map = Board(global_map)
+
+    glob = simulate_class(static_map, class_map)
     def helper(glob):
-        glob2 = simulate_pt2(glob, copy.deepcopy(glob))
-        if glob == glob2:
-            return glob2
+        glob2 = simulate_class(glob, Board(copy.deepcopy(glob.board)))
+        if glob.board == glob2.board:
+            return glob2.board
         return helper(glob2)
 
     answer = helper(glob)
+    # print('init')
+    # print(np.matrix(static_map.board))
+    # print('first iter')
+    # print(np.matrix(glob.board))
+    # glob2 = simulate_class(glob, Board(copy.deepcopy(glob.board)))
+    # print('sec iter')
+    # print(np.matrix(glob2.board))
+    # glob3 = simulate_class(glob2, Board(copy.deepcopy(glob2.board)))
+    # print('third iter')
+    # print(np.matrix(glob3.board))
+    # glob4 = simulate_class(glob3, Board(copy.deepcopy(glob3.board)))
+    # print('third iter')
+    # print(np.matrix(glob4.board))
 
-    # occupied = 0
-    # for row in answer:
-    #     for col in row:
-    #         if col == '#': occupied += 1
-    # print(occupied)
+
+    occupied = 0
+    for row in answer:
+        for col in row:
+            if col == '#': occupied += 1
+    print(occupied)
+    # test_board = Board(seat_map)
+    # print(test_board.calculate_neighbors(1,5,'diag4'))
