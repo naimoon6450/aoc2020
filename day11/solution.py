@@ -12,7 +12,7 @@ Learnings
 - Bad way to identify first L or first #... need to change that 
 - Didn't read the question properly, they wanted to update 
 - Framing question using FSM (https://www.reddit.com/r/adventofcode/comments/kblayc/2020_day_11_analytics_cycles_in_the_seating_system/)
-- 
+- Instead of looking for an L or # for part 2, continue only if you see a "." otherwise we break
 '''
 
 
